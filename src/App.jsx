@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import RequireAuth from "./components/RequireAuth";
 import LoginPage from "./pages/Login";
 import ProductDetailPage from "./pages/ProductDetail";
 import ProductEditPage from "./pages/ProductEdit";
@@ -10,10 +11,40 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<Navigate to="/products" replace />} />
-      <Route path="/products" element={<ProductsPage />} />
-      <Route path="/products/new" element={<ProductNewPage />} />
-      <Route path="/products/:id" element={<ProductDetailPage />} />
-      <Route path="/products/:id/edit" element={<ProductEditPage />} />
+
+      <Route
+        path="/products"
+        element={
+          <RequireAuth>
+            <ProductsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/products/new"
+        element={
+          <RequireAuth>
+            <ProductNewPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/products/:id"
+        element={
+          <RequireAuth>
+            <ProductDetailPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/products/:id/edit"
+        element={
+          <RequireAuth>
+            <ProductEditPage />
+          </RequireAuth>
+        }
+      />
+
       <Route
         path="*"
         element={
