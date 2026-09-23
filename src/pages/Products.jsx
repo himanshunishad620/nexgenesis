@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SearchBar from "../components/SearchBar";
 import FiltersBar from "../components/FiltersBar";
@@ -9,6 +9,7 @@ import ErrorState from "../components/ErrorState";
 import ProductTable from "../components/ProductTable";
 import ProductCards from "../components/ProductCards";
 import Pagination from "../components/Pagination";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { useAuth } from "../hooks/useAuth";
 import useDebouncedValue from "../lib/useDebouncedValue";
 import { toSafeInt, toSafeString, toSafeEnum } from "../lib/urlState";
@@ -17,12 +18,14 @@ import {
   getProductsByCategory,
   searchProducts,
   getCategories,
+  deleteProduct,
 } from "../lib/api/products";
 
 const PAGE_SIZES = [10, 20, 50];
 const SORT_FIELDS = ["title", "price", "rating"];
 
 export default function ProductsPage() {
+  const navigate = useNavigate();
   const { username, logout } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -41,6 +44,21 @@ export default function ProductsPage() {
     });
     setSearchParams(next);
   }
+
+  // If someone typed a bad URL by hand (?page=abc, ?page=999,
+  // ?pageSize=13...), toSafeInt/toSafeEnum above already fell back to
+  // a safe value for THIS render, so the page never breaks. This
+  // effect just tidies the address bar to match what's actually
+  // showing, instead of leaving the broken value sitting in the URL.
+  useEffect(() => {
+    const rawPage = searchParams.get("page");
+    const rawPageSize = searchParams.get("pageSize");
+    const needsCleanup =
+      (rawPage !== null && rawPage !== String(page)) ||
+      (rawPageSize !== null && rawPageSize !== String(pageSize));
+    if (needsCleanup) updateQuery({ page, pageSize });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [searchInput, setSearchInput] = useState(search);
   useEffect(() => setSearchInput(search), [search]);
@@ -64,7 +82,7 @@ export default function ProductsPage() {
   useEffect(() => {
     getCategories()
       .then(setCategories)
-      .catch(() => setCategories([])); // categories are a nice-to-have; don't block the page on them
+      .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
@@ -84,9 +102,6 @@ export default function ProductsPage() {
     let request;
 
     if (search) {
-      // DummyJSON has no single endpoint that both searches text AND
-      // filters by category. Rather than silently ignore the category
-      // filter, we tell the user what's happening.
       if (category) setNote("Category filter is ignored while a search is active.");
       request = searchProducts({ q: search, limit: pageSize, skip, signal: controller.signal });
     } else if (category) {
@@ -98,10 +113,6 @@ export default function ProductsPage() {
     request
       .then((data) => {
         if (thisRequestId !== requestIdRef.current) return;
-        // DummyJSON's search/category endpoints don't support server-side
-        // sorting the same way the main list does, so we sort each page
-        // of results ourselves once it arrives, regardless of which
-        // endpoint served it.
         const items = sortItems(data.products || [], sortBy, order);
         setProducts(items);
         setTotal(data.total || items.length);
@@ -123,11 +134,37 @@ export default function ProductsPage() {
     });
   }
 
+  // Delete, with a confirm popup first.
+  const [confirmTarget, setConfirmTarget] = useState(null);
+
+  function handleDelete() {
+    if (!confirmTarget) return;
+    const id = confirmTarget.id;
+    deleteProduct(id)
+      // DummyJSON's delete doesn't really remove anything server-side,
+      // so even if this call somehow failed we still update the screen.
+      .catch(() => {})
+      .finally(() => {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        setTotal((prev) => Math.max(0, prev - 1));
+        setConfirmTarget(null);
+        setNote(`Removed "${confirmTarget.title}" from this screen (DummyJSON does not save deletes).`);
+      });
+  }
+
   return (
     <div>
       <Navbar username={username} onLogout={logout} />
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <h1 className="mb-4 text-xl font-semibold">Products</h1>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-xl font-semibold">Products</h1>
+          <button
+            onClick={() => navigate("/products/new")}
+            className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          >
+            Add product
+          </button>
+        </div>
 
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SearchBar value={searchInput} onChange={setSearchInput} />
@@ -153,9 +190,19 @@ export default function ProductsPage() {
         {status === "success" && products.length > 0 && (
           <>
             <div className="overflow-x-auto">
-              <ProductTable products={products} />
+              <ProductTable
+                products={products}
+                onView={(id) => navigate(`/products/${id}`)}
+                onEdit={(id) => navigate(`/products/${id}/edit`)}
+                onDelete={setConfirmTarget}
+              />
             </div>
-            <ProductCards products={products} />
+            <ProductCards
+              products={products}
+              onView={(id) => navigate(`/products/${id}`)}
+              onEdit={(id) => navigate(`/products/${id}/edit`)}
+              onDelete={setConfirmTarget}
+            />
             <Pagination
               page={page}
               pageSize={pageSize}
@@ -165,6 +212,14 @@ export default function ProductsPage() {
           </>
         )}
       </main>
+
+      <ConfirmDialog
+        open={!!confirmTarget}
+        title="Delete product"
+        message={confirmTarget ? `Delete "${confirmTarget.title}"? This can't be undone.` : ""}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmTarget(null)}
+      />
     </div>
   );
 }

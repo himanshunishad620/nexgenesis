@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../lib/api/auth";
+import Input from "../components/Input";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -11,8 +12,6 @@ export default function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    // Ignore repeated clicks on "Log in" while a request is already
-    // going - this is what stops one click turning into many requests.
     if (submitting) return;
     setError("");
     setSubmitting(true);
@@ -39,32 +38,22 @@ export default function LoginPage() {
         <h1 className="mb-4 text-xl font-semibold">Log in</h1>
         {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
-        <div className="mb-3">
-          <label className="mb-1 block text-sm font-medium" htmlFor="username">
-            Username
-          </label>
-          <input
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            autoComplete="username"
-          />
-        </div>
+        <Input
+          label="Username"
+          name="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          autoComplete="username"
+        />
 
-        <div className="mb-4">
-          <label className="mb-1 block text-sm font-medium" htmlFor="password">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded border px-3 py-2"
-            autoComplete="current-password"
-          />
-        </div>
+        <Input
+          label="Password"
+          name="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+        />
 
         <button
           type="submit"
