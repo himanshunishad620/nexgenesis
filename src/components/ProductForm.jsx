@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useUpdateForm from "../hooks/useUpdateForm";
 import Input from "./Input";
 
 const EMPTY_VALUES = {
@@ -10,8 +11,9 @@ const EMPTY_VALUES = {
 };
 export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
   const [values, setValues] = useState({ ...EMPTY_VALUES, ...initialValues });
-  const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  // const [errors, setErrors] = useState({});
+  // const [submitting, setSubmitting] = useState(false);
+  const { submitForm, submitting, errors } = useUpdateForm();
 
   function validate() {
     const next = {};
@@ -38,19 +40,20 @@ export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (submitting) return;
-    if (!validate()) return;
+    await submitForm(values, onSubmit);
+    // if (submitting) return;
+    // if (!validate()) return;
 
-    setSubmitting(true);
-    try {
-      await onSubmit({
-        ...values,
-        price: Number(values.price),
-        stock: Number(values.stock),
-      });
-    } finally {
-      setSubmitting(false);
-    }
+    // setSubmitting(true);
+    // try {
+    //   await onSubmit({
+    //     ...values,
+    //     price: Number(values.price),
+    //     stock: Number(values.stock),
+    //   });
+    // } finally {
+    //   setSubmitting(false);
+    // }
   }
 
   function handleChange(e) {

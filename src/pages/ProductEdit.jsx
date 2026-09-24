@@ -14,7 +14,6 @@ export default function ProductEditPage() {
   const { username, logout } = useAuth();
 
   const [product, setProduct] = useState(null);
-  // const [status, setStatus] = useState("loading");
   const { fetchProducts, status } = useProduct();
 
   useEffect(() => {
