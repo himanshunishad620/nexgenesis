@@ -8,7 +8,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://dummyjson.com",
+  baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
 });
 
@@ -37,7 +37,7 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
