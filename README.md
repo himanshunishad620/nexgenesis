@@ -76,6 +76,17 @@ I used AI assistance to scaffold the project structure and write the repetitive 
 
 ---
 
+## Note: "data breach" popup after login
+
+If your browser shows a "this password appeared in a data breach"
+warning after logging in, that's Chrome/Edge's built-in password
+checker reacting to DummyJSON's public test password (`emilyspass`),
+not a bug in this app. This app doesn't check, store, or do anything
+with breach data — see `src/pages/Login.jsx`, which only shows "Wrong
+username or password" on a 400/401 response. Safe to dismiss.
+
+---
+
 ## Project structure
 
 ```
