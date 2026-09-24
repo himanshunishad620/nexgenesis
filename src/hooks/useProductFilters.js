@@ -49,9 +49,6 @@ export default function useProductFilters() {
     ) {
       updateQuery({ page, pageSize });
     }
-
-    // Run only once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [searchInput, setSearchInput] = useState(search);
@@ -69,8 +66,6 @@ export default function useProductFilters() {
       q: debouncedSearch,
       page: 1,
     });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   return {

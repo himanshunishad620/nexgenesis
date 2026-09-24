@@ -16,7 +16,6 @@ export default function useDeleteProduct({
       try {
         await deleteProduct(id);
       } catch {
-        // DummyJSON delete is simulated
       } finally {
         setProducts((prev) => prev.filter((item) => item.id !== id));
         setTotal((prev) => Math.max(0, prev - 1));
