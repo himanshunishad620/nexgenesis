@@ -1,40 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Input from "../components/Input";
-import { login } from "../lib/api/auth";
+import useLogin from "../hooks/useLogin";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
+  const { sumbitLogin, error, submitting } = useLogin();
   async function handleSubmit(e) {
     e.preventDefault();
-    if (submitting) return;
-
-    setError("");
-    setSubmitting(true);
-
-    try {
-      const data = await login(username, password);
-
-      window.localStorage.setItem("token", data.token);
-      window.localStorage.setItem("username", data.username);
-
-      navigate("/products", { replace: true });
-    } catch (err) {
-      const status = err.response ? err.response.status : null;
-
-      if (status === 400 || status === 401) {
-        setError("Wrong username or password.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    await sumbitLogin(username, password);
   }
 
   return (

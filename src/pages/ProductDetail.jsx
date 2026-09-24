@@ -4,7 +4,7 @@ import ErrorState from "../components/ErrorState";
 import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../hooks/useAuth";
-import { getProductById } from "../lib/api/products";
+import useProduct from "../hooks/useProduct";
 
 export default function ProductDetailPage() {
   const navigate = useNavigate();
@@ -12,24 +12,11 @@ export default function ProductDetailPage() {
   const { username, logout } = useAuth();
 
   const [product, setProduct] = useState(null);
-  const [status, setStatus] = useState("loading");
+  const { fetchProducts, status } = useProduct();
 
   useEffect(() => {
-    load();
+    fetchProducts(id, setProduct);
   }, [id]);
-
-  function load() {
-    setStatus("loading");
-    getProductById(id)
-      .then((data) => {
-        setProduct(data);
-        setStatus("success");
-      })
-      .catch((err) => {
-        const notFound = err.response && err.response.status === 404;
-        setStatus(notFound ? "notfound" : "error");
-      });
-  }
 
   return (
     <div className="min-h-screen bg-slate-50">

@@ -5,7 +5,8 @@ import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import ProductForm from "../components/ProductForm";
 import { useAuth } from "../hooks/useAuth";
-import { getProductById, updateProduct } from "../lib/api/products";
+import useProduct from "../hooks/useProduct";
+import { updateProduct } from "../lib/api/products";
 
 export default function ProductEditPage() {
   const navigate = useNavigate();
@@ -13,21 +14,12 @@ export default function ProductEditPage() {
   const { username, logout } = useAuth();
 
   const [product, setProduct] = useState(null);
-  const [status, setStatus] = useState("loading");
+  // const [status, setStatus] = useState("loading");
+  const { fetchProducts, status } = useProduct();
 
   useEffect(() => {
-    load();
+    fetchProducts(id, setProduct);
   }, [id]);
-
-  function load() {
-    setStatus("loading");
-    getProductById(id)
-      .then((data) => {
-        setProduct(data);
-        setStatus("success");
-      })
-      .catch(() => setStatus("error"));
-  }
 
   async function handleSubmit(values) {
     await updateProduct(id, values);
