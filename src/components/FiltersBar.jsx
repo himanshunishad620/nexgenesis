@@ -17,9 +17,6 @@ export default function FiltersBar({
       >
         <option value="">All categories</option>
         {categories.map((c) => {
-          // DummyJSON's /products/categories can return plain strings or
-          // { slug, name } objects depending on the version, so we
-          // handle both instead of assuming one shape.
           const value = typeof c === "string" ? c : c.slug;
           const label = typeof c === "string" ? c : c.name;
           return (

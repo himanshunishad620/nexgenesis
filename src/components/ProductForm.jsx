@@ -1,11 +1,13 @@
 import { useState } from "react";
 import Input from "./Input";
 
-const EMPTY_VALUES = { title: "", category: "", price: "", stock: "", description: "" };
-
-// Shared form for both "add product" and "edit product". The parent
-// page passes in `initialValues` (empty for add, filled in for edit)
-// and an `onSubmit` function that actually saves the data.
+const EMPTY_VALUES = {
+  title: "",
+  category: "",
+  price: "",
+  stock: "",
+  description: "",
+};
 export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
   const [values, setValues] = useState({ ...EMPTY_VALUES, ...initialValues });
   const [errors, setErrors] = useState({});
@@ -15,7 +17,11 @@ export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
     const next = {};
     if (!values.title.trim()) next.title = "Title is required.";
     if (!values.category.trim()) next.category = "Category is required.";
-    if (values.price === "" || Number.isNaN(Number(values.price)) || Number(values.price) <= 0) {
+    if (
+      values.price === "" ||
+      Number.isNaN(Number(values.price)) ||
+      Number(values.price) <= 0
+    ) {
       next.price = "Price must be a number greater than 0.";
     }
     if (
@@ -32,8 +38,6 @@ export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    // Ignore extra clicks/submits while a save is already in progress -
-    // this is what stops "Save" being fired many times in a row.
     if (submitting) return;
     if (!validate()) return;
 
@@ -55,7 +59,14 @@ export default function ProductForm({ initialValues, submitLabel, onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md">
-      <Input label="Title" name="title" value={values.title} onChange={handleChange} error={errors.title} required />
+      <Input
+        label="Title"
+        name="title"
+        value={values.title}
+        onChange={handleChange}
+        error={errors.title}
+        required
+      />
       <Input
         label="Category"
         name="category"

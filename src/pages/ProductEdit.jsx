@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ErrorState from "../components/ErrorState";
+import Loader from "../components/Loader";
 import Navbar from "../components/Navbar";
 import ProductForm from "../components/ProductForm";
-import Loader from "../components/Loader";
-import ErrorState from "../components/ErrorState";
 import { useAuth } from "../hooks/useAuth";
 import { getProductById, updateProduct } from "../lib/api/products";
 
@@ -17,7 +17,6 @@ export default function ProductEditPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   function load() {
@@ -31,9 +30,6 @@ export default function ProductEditPage() {
   }
 
   async function handleSubmit(values) {
-    // Same story as add/delete: DummyJSON doesn't persist the edit, but
-    // it does answer with the updated object, so we send the request
-    // and then move on as if it were saved.
     await updateProduct(id, values);
     navigate(`/products/${id}`);
   }

@@ -4,7 +4,9 @@ import api from "../axiosClient";
 // any component - components only ever call these functions.
 
 export function getProducts({ limit, skip, signal }) {
-  return api.get("/products", { params: { limit, skip }, signal }).then((res) => res.data);
+  return api
+    .get("/products", { params: { limit, skip }, signal })
+    .then((res) => res.data);
 }
 
 export function getProductsByCategory({ category, limit, skip, signal }) {
@@ -30,11 +32,6 @@ export function getProductById(id) {
   return api.get(`/products/${id}`).then((res) => res.data);
 }
 
-// DummyJSON accepts these calls and answers as if they worked, but it
-// does not actually store the change on its server. We call the API
-// anyway (so the network request really happens, as required) and then
-// update our own local list to reflect the change - see the README for
-// why, and how the pages handle that.
 export function addProduct(product) {
   return api.post("/products/add", product).then((res) => res.data);
 }

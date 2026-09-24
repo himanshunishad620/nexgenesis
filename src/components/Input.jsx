@@ -1,24 +1,17 @@
 import { forwardRef } from "react";
-
-/**
- * One input component used everywhere a text field, number field, email
- * field or textarea shows up in the app (login form, add/edit product
- * form, and anywhere else). Centralizing it here means every field gets
- * the same label style, spacing, focus ring and error styling - change
- * it once, and it updates across the whole app.
- *
- * Basic use:
- *   <Input label="Title" name="title" value={title} onChange={handleChange} />
- *
- * With an error message (e.g. from form validation):
- *   <Input label="Price" name="price" type="number" error={errors.price} />
- *
- * As a multi-line field instead of a single-line input:
- *   <Input as="textarea" label="Description" name="description" rows={4} />
- */
 const Input = forwardRef(function Input(
-  { label, id, name, error, hint, required, as = "input", className = "", ...props },
-  ref
+  {
+    label,
+    id,
+    name,
+    error,
+    hint,
+    required,
+    as = "input",
+    className = "",
+    ...props
+  },
+  ref,
 ) {
   const inputId = id || name;
   const Field = as; // "input" or "textarea" - same component, different tag
@@ -34,7 +27,10 @@ const Input = forwardRef(function Input(
   return (
     <div className="mb-4">
       {label && (
-        <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-gray-700">
+        <label
+          htmlFor={inputId}
+          className="mb-1 block text-sm font-medium text-gray-700"
+        >
           {label}
           {required && <span className="text-red-500"> *</span>}
         </label>
@@ -45,7 +41,9 @@ const Input = forwardRef(function Input(
         name={name}
         ref={ref}
         aria-invalid={!!error}
-        aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+        aria-describedby={
+          error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined
+        }
         className={fieldClasses}
         {...props}
       />
